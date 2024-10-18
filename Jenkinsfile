@@ -13,7 +13,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 // Pull the source code from version control
-                git url: 'https://github.com/ksj6/docker_flask_app.gitt', branch: 'main'
+                git credentialsId: 'github-credentials',  url: 'https://github.com/ksj6/docker_flask_app.gitt', branch: 'main'
             }
         }
 
