@@ -1,59 +1,21 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "docker_assignment3"
-        DOCKER_REGISTRY = "docker.io/ksj66"  // Optional: for pushing images to a registry
-        
-        DOCKER_CREDENTIALS = credentials('dockerhub-credentials')  // Using the ID you defined
-
-    }
-
     stages {
-        stage('Clone Repository') {
-            steps {
-                // Pull the source code from version control
-                git url: 'https://github.com/ksj6/docker_flask_app.git', branch: 'main'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image
-                    sh 'docker build -t $IMAGE_NAME .'
+                    // Build the Docker image using the Dockerfile
+                    sh 'docker build -t hello-world-app .'
                 }
             }
         }
 
-        stage('Run Tests') {
+        stage('Run Docker Container') {
             steps {
                 script {
-                    // Run the application container and test it
-                    sh '''
-                    docker run -d --name test-container -p 5000:5000 $IMAGE_NAME
-                    sleep 5  # Wait for the app to start
-                    curl -f http://localhost:5000 || exit 1  # Check if the app is running
-                    docker stop test-container
-                    docker rm test-container
-                    '''
-                }
-            }
-        }
-
-        stage('Push to Docker Registry') {
-            when {
-                expression {
-                    return env.DOCKER_REGISTRY != null && env.DOCKER_REGISTRY != ""
-                }
-            }
-            steps {
-                script {
-                    // Push the Docker image to a Docker registry
-                    sh '''
-                    docker tag $IMAGE_NAME $DOCKER_REGISTRY/$IMAGE_NAME
-                    docker push $DOCKER_REGISTRY/$IMAGE_NAME
-                    '''
+                    // Run the Docker container
+                    sh 'docker run -d -p 5000:5000 hello-world-app'
                 }
             }
         }
@@ -61,17 +23,9 @@ pipeline {
 
     post {
         always {
-            // Clean up Docker images after the build process
-            script {
-                sh 'docker rmi $IMAGE_NAME || true'
-            }
-        }
-        failure {
-            // Notify about build failures
-            echo 'Build failed!'
-        }
-        success {
-            echo 'Build and tests were successful!'
+            // Clean up the Docker container after the build
+            sh 'docker ps -a -q --filter name=hello-world-app | xargs --no-run-if-empty docker stop'
+            sh 'docker ps -a -q --filter name=hello-world-app | xargs --no-run-if-empty docker rm'
         }
     }
 }
