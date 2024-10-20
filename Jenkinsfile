@@ -9,16 +9,8 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 script {
-                    // Use withCredentials to handle sensitive information securely
-                    withCredentials([usernamePassword(credentialsId: 'git-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
-                        // Configure Git to store credentials temporarily
-                        sh '''
-                            git config --global credential.helper store
-                            echo "${GIT_USER}:${GIT_PASS}" > ~/.git-credentials
-                            git clone ${GIT_REPO_URL}
-                            rm ~/.git-credentials
-                        '''
-                    }
+                    // This will automatically use the configured Git credentials for the repository
+                    sh "git clone ${GIT_REPO_URL}"
                 }
             }
         }
