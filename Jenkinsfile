@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        GIT_REPO_URL = 'https://github.com/ksj6/docker_flask_app.git' // Replace with your actual repo URL
+        GIT_REPO_URL = 'github.com/ksj6/docker_flask_app.git' // Remove the protocol to avoid embedding credentials
     }
 
     stages {
@@ -11,7 +11,13 @@ pipeline {
                 script {
                     // Use withCredentials to handle sensitive information securely
                     withCredentials([usernamePassword(credentialsId: 'git-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
-                        sh "git clone https://${GIT_USER}:${GIT_PASS}@${GIT_REPO_URL}"
+                        // Configure Git to use the credentials without exposing them directly
+                        sh """
+                            git config --global credential.helper store
+                            echo "https://${GIT_USER}:${GIT_PASS}@${GIT_REPO_URL}" > /tmp/git-credentials
+                            git clone https://$(cat /tmp/git-credentials | sed 's/https:\/\///')
+                            rm /tmp/git-credentials
+                        """
                     }
                 }
             }
