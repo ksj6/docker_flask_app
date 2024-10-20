@@ -13,7 +13,7 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image using the Dockerfile in the cloned repository
-                    sh 'docker build -t docker_flask_app docker_flask_app/'
+                    bat 'docker build -t docker_flask_app docker_flask_app\\'
                 }
             }
         }
@@ -22,7 +22,7 @@ pipeline {
             steps {
                 script {
                     // Run the Docker container, mapping port 5000
-                    sh 'docker run -d -p 5000:5000 docker_flask_app'
+                    bat 'docker run -d -p 5000:5000 docker_flask_app'
                 }
             }
         }
@@ -32,8 +32,8 @@ pipeline {
         always {
             script {
                 // Clean up any running Docker containers
-                sh 'docker ps -a -q --filter name=docker_flask_app | xargs --no-run-if-empty docker stop'
-                sh 'docker ps -a -q --filter name=docker_flask_app | xargs --no-run-if-empty docker rm'
+                bat 'docker ps -a -q --filter name=docker_flask_app | xargs --no-run-if-empty docker stop'
+                bat 'docker ps -a -q --filter name=docker_flask_app | xargs --no-run-if-empty docker rm'
             }
         }
     }
