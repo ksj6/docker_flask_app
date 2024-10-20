@@ -14,8 +14,8 @@ pipeline {
                         // Configure Git to use the credentials without exposing them directly
                         sh """
                             git config --global credential.helper store
-                            echo "https://${GIT_USER}:${GIT_PASS}@${GIT_REPO_URL}" > /tmp/git-credentials
-                            git clone https://$(cat /tmp/git-credentials | sed 's/https:\/\///')
+                            echo "https://${GIT_USER}:\${GIT_PASS}@${GIT_REPO_URL}" > /tmp/git-credentials
+                            git clone https://\$(cat /tmp/git-credentials | sed 's/https:\/\///')
                             rm /tmp/git-credentials
                         """
                     }
