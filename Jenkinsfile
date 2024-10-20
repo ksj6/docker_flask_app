@@ -2,20 +2,16 @@ pipeline {
     agent any
 
     environment {
-        GIT_CREDENTIALS = credentials('git-credentials') // Ensure you have this credential ID set in Jenkins
+        GIT_REPO_URL = 'https://github.com/ksj6/docker_flask_app.git' // Replace with your actual repo URL
     }
 
     stages {
         stage('Clone Repository') {
             steps {
                 script {
-                    // Clone the repository using the provided credentials
-                    sh "git clone https://${GIT_CREDENTIALS_USR}:${GIT_CREDENTIALS_PSW}@your-repo-url.git"
-                    
-                    // Change directory to the cloned repository
-                    dir('docker_flask_app') {
-                        // You may need to replace 'your-repo-folder-name' with the actual folder name after cloning
-                        echo "Repository cloned successfully."
+                    // Use withCredentials to handle sensitive information securely
+                    withCredentials([usernamePassword(credentialsId: 'git-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                        sh "git clone https://${GIT_USER}:${GIT_PASS}@${GIT_REPO_URL}"
                     }
                 }
             }
@@ -26,7 +22,7 @@ pipeline {
                 script {
                     // Navigate to the cloned repository directory and build the Docker image
                     dir('docker_flask_app') {
-                        sh 'docker build -t hello-world-app .'
+                        sh 'docker build -t docker_flask_app .'
                     }
                 }
             }
@@ -35,9 +31,9 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
-                    // Navigate to the cloned repository directory and run the Docker container
+                    // Run the Docker container
                     dir('docker_flask_app') {
-                        sh 'docker run -d -p 5000:5000 hello-world-app'
+                        sh 'docker run -d -p 5000:5000 docker_flask_app'
                     }
                 }
             }
@@ -48,8 +44,8 @@ pipeline {
         always {
             script {
                 // Clean up any running Docker containers
-                sh 'docker ps -a -q --filter name=hello-world-app | xargs --no-run-if-empty docker stop'
-                sh 'docker ps -a -q --filter name=hello-world-app | xargs --no-run-if-empty docker rm'
+                sh 'docker ps -a -q --filter name=docker_flask_app | xargs --no-run-if-empty docker stop'
+                sh 'docker ps -a -q --filter name=docker_flask_app | xargs --no-run-if-empty docker rm'
             }
         }
     }
