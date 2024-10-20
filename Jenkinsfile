@@ -5,7 +5,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 // Clone the repository using the Git URL configured in the Jenkins job
-                git 'https://github.com/ksj6/docker_flask_app.git' // Use your actual repo URL
+                git credentialsId: 'git-credentials', url: 'https://github.com/ksj6/docker_flask_app.git' // Use your actual repo URL
             }
         }
 
