@@ -1,27 +1,19 @@
 pipeline {
     agent any
 
-    environment {
-        GIT_REPO_URL = 'https://github.com/ksj6/docker_flask_app.git' // Include the protocol
-    }
-
     stages {
         stage('Clone Repository') {
             steps {
-                script {
-                    // This will automatically use the configured Git credentials for the repository
-                    sh "git clone ${GIT_REPO_URL}"
-                }
+                // Clone the repository using the Git URL configured in the Jenkins job
+                git 'https://github.com/ksj6/docker_flask_app.git' // Use your actual repo URL
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Navigate to the cloned repository directory and build the Docker image
-                    dir('docker_flask_app') {
-                        sh 'docker build -t docker_flask_app .'
-                    }
+                    // Build the Docker image using the Dockerfile in the cloned repository
+                    sh 'docker build -t docker_flask_app docker_flask_app/'
                 }
             }
         }
@@ -29,10 +21,8 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
-                    // Run the Docker container
-                    dir('docker_flask_app') {
-                        sh 'docker run -d -p 5000:5000 docker_flask_app'
-                    }
+                    // Run the Docker container, mapping port 5000
+                    sh 'docker run -d -p 5000:5000 docker_flask_app'
                 }
             }
         }
